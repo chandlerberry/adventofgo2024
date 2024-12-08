@@ -11,18 +11,18 @@ import (
 	"time"
 )
 
-func GetSessionCookie() (*http.Cookie, error) {
+func GetSessionCookie() ([]*http.Cookie, error) {
 	sessionId, err := os.ReadFile("session.txt")
 	if err != nil {
 		return nil, err
 	}
 
-	cookie := http.Cookie{
+	cookie := &http.Cookie{
 		Name:  "session",
 		Value: string(sessionId),
 	}
 
-	return &cookie, nil
+	return []*http.Cookie{cookie}, nil
 }
 
 func GetDailyInput(inputUrl string) (string, error) {
@@ -41,7 +41,7 @@ func GetDailyInput(inputUrl string) (string, error) {
 		fmt.Println("could not get session cookie: ", err)
 	}
 
-	jar.SetCookies(baseurl, []*http.Cookie{sessionCookie})
+	jar.SetCookies(baseurl, sessionCookie)
 
 	client := &http.Client{
 		Timeout: time.Duration(30) * time.Second,
