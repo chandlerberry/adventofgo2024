@@ -8,6 +8,7 @@ import (
 	"net/http/cookiejar"
 	"net/url"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -71,10 +72,25 @@ func main() {
 
 	fmt.Println(inputUrl)
 
+	// TODO: write out input to a file, first checking if day input does not exist
+	// TODO: read the file line-by-line to work with in problems
+
 	input, err := GetDailyInput(inputUrl)
 	if err != nil {
 		fmt.Println("could not get daily input: ", err)
 	}
 
-	fmt.Println(input)
+	dayOnePartOne(input)
+}
+
+func dayOnePartOne(input string) {
+	input_example, err := os.ReadFile("input1_example.txt")
+	if err != nil {
+		fmt.Println(err)
+	}
+	input_string := string(input_example)
+
+	lines := strings.Split(input_string, "   ")
+
+	fmt.Println(lines)
 }
