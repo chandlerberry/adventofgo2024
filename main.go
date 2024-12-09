@@ -11,39 +11,6 @@ import (
 	"time"
 )
 
-func GetSessionCookie() ([]*http.Cookie, error) {
-	sessionId, err := os.ReadFile("session.txt")
-	check(err)
-
-	cookie := &http.Cookie{
-		Name:  "session",
-		Value: string(sessionId),
-	}
-
-	return []*http.Cookie{cookie}, nil
-}
-
-func GetDailyInput(inputYear *int, inputDay *int, client *http.Client) error {
-	inputUrl := fmt.Sprintf("https://adventofcode.com/%d/day/%d/input", *inputYear, *inputDay)
-
-	resp, err := client.Get(inputUrl)
-	check(err)
-
-	respBytes, err := io.ReadAll(resp.Body)
-	check(err)
-
-	pwd, pwdErr := os.Getwd()
-	check(pwdErr)
-
-	inputFileName := fmt.Sprintf("%s/inputs/day%d.txt", pwd, *inputDay)
-	fmt.Println(inputFileName)
-
-	inputFileWriteErr := os.WriteFile(inputFileName, respBytes, 0644)
-	check(inputFileWriteErr)
-
-	return nil
-}
-
 func main() {
 	inputYear := flag.Int("y", 2024, "Input Year")
 	inputDay := flag.Int("i", 1, "Input Day")
@@ -74,4 +41,36 @@ func check(err error) {
 		fmt.Println("Error: ", err)
 		panic(err)
 	}
+}
+
+func GetSessionCookie() ([]*http.Cookie, error) {
+	sessionId, err := os.ReadFile("session.txt")
+	check(err)
+
+	cookie := &http.Cookie{
+		Name:  "session",
+		Value: string(sessionId),
+	}
+
+	return []*http.Cookie{cookie}, nil
+}
+
+func GetDailyInput(inputYear *int, inputDay *int, client *http.Client) error {
+	inputUrl := fmt.Sprintf("https://adventofcode.com/%d/day/%d/input", *inputYear, *inputDay)
+
+	resp, err := client.Get(inputUrl)
+	check(err)
+
+	respBytes, err := io.ReadAll(resp.Body)
+	check(err)
+
+	pwd, pwdErr := os.Getwd()
+	check(pwdErr)
+
+	inputFileName := fmt.Sprintf("%s/inputs/day%d.txt", pwd, *inputDay)
+
+	inputFileWriteErr := os.WriteFile(inputFileName, respBytes, 0644)
+	check(inputFileWriteErr)
+
+	return nil
 }
