@@ -8,15 +8,12 @@ import (
 	"net/http/cookiejar"
 	"net/url"
 	"os"
-	"strings"
 	"time"
 )
 
 func GetSessionCookie() ([]*http.Cookie, error) {
 	sessionId, err := os.ReadFile("session.txt")
-	if err != nil {
-		return nil, err
-	}
+	check(err)
 
 	cookie := &http.Cookie{
 		Name:  "session",
@@ -26,21 +23,40 @@ func GetSessionCookie() ([]*http.Cookie, error) {
 	return []*http.Cookie{cookie}, nil
 }
 
-func GetDailyInput(inputUrl string) (string, error) {
-	jar, err := cookiejar.New(nil)
-	if err != nil {
-		fmt.Println("could not create cookie jar: ", err)
-	}
+func GetDailyInput(inputYear *int, inputDay *int, client *http.Client) error {
+	inputUrl := fmt.Sprintf("https://adventofcode.com/%d/day/%d/input", *inputYear, *inputDay)
 
-	baseurl, err := url.Parse("https://adventofcode.com")
-	if err != nil {
-		fmt.Println("could not parse url provided: ", err)
-	}
+	resp, err := client.Get(inputUrl)
+	check(err)
 
-	sessionCookie, err := GetSessionCookie()
-	if err != nil {
-		fmt.Println("could not get session cookie: ", err)
-	}
+	respBytes, err := io.ReadAll(resp.Body)
+	check(err)
+
+	pwd, pwdErr := os.Getwd()
+	check(pwdErr)
+
+	inputFileName := fmt.Sprintf("%s/inputs/day%d.txt", pwd, *inputDay)
+	fmt.Println(inputFileName)
+
+	inputFileWriteErr := os.WriteFile(inputFileName, respBytes, 0644)
+	check(inputFileWriteErr)
+
+	return nil
+}
+
+func main() {
+	inputYear := flag.Int("y", 2024, "Input Year")
+	inputDay := flag.Int("i", 1, "Input Day")
+	flag.Parse()
+
+	baseurl, urlErr := url.Parse("https://adventofcode.com")
+	check(urlErr)
+
+	jar, jarErr := cookiejar.New(nil)
+	check(jarErr)
+
+	sessionCookie, getSessionCookieErr := GetSessionCookie()
+	check(getSessionCookieErr)
 
 	jar.SetCookies(baseurl, sessionCookie)
 
@@ -49,48 +65,13 @@ func GetDailyInput(inputUrl string) (string, error) {
 		Jar:     jar,
 	}
 
-	resp, err := client.Get(inputUrl)
-	if err != nil {
-		fmt.Println("error making request: ", err)
-	}
-
-	respBytes, err := io.ReadAll(resp.Body)
-	if err != nil {
-		fmt.Println("error reading response body: ", err)
-	}
-
-	return string(respBytes), nil
+	getInputErr := GetDailyInput(inputYear, inputDay, client)
+	check(getInputErr)
 }
 
-func main() {
-	inputYear := flag.Int("y", 2024, "Input Year")
-	inputDay := flag.Int("i", 1, "Input Day")
-
-	flag.Parse()
-
-	inputUrl := fmt.Sprintf("https://adventofcode.com/%d/day/%d/input", *inputYear, *inputDay)
-
-	fmt.Println(inputUrl)
-
-	// TODO: write out input to a file, first checking if day input does not exist
-	// TODO: read the file line-by-line to work with in problems
-
-	input, err := GetDailyInput(inputUrl)
+func check(err error) {
 	if err != nil {
-		fmt.Println("could not get daily input: ", err)
+		fmt.Println("Error: ", err)
+		panic(err)
 	}
-
-	dayOnePartOne(input)
-}
-
-func dayOnePartOne(input string) {
-	input_example, err := os.ReadFile("input1_example.txt")
-	if err != nil {
-		fmt.Println(err)
-	}
-	input_string := string(input_example)
-
-	lines := strings.Split(input_string, "   ")
-
-	fmt.Println(lines)
 }
