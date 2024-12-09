@@ -11,29 +11,43 @@ import (
 	"time"
 )
 
+func DayOne() {
+	fmt.Println("Day One Here")
+}
+
 func main() {
 	inputYear := flag.Int("y", 2024, "Input Year")
 	inputDay := flag.Int("i", 1, "Input Day")
 	flag.Parse()
 
-	baseurl, urlErr := url.Parse("https://adventofcode.com")
-	check(urlErr)
+	// get filepath
+	pwd, pwdErr := os.Getwd()
+	check(pwdErr)
 
-	jar, jarErr := cookiejar.New(nil)
-	check(jarErr)
+	inputFileName := fmt.Sprintf("%s/inputs/day%d.txt", pwd, *inputDay)
 
-	sessionCookie, getSessionCookieErr := GetSessionCookie()
-	check(getSessionCookieErr)
+	// check if file exists, if file does not exist, download the file from https://adventofcode.com
+	if _, err := os.Stat(inputFileName); err != nil {
+		baseurl, urlErr := url.Parse("https://adventofcode.com")
+		check(urlErr)
 
-	jar.SetCookies(baseurl, sessionCookie)
+		jar, jarErr := cookiejar.New(nil)
+		check(jarErr)
 
-	client := &http.Client{
-		Timeout: time.Duration(30) * time.Second,
-		Jar:     jar,
+		sessionCookie, getSessionCookieErr := GetSessionCookie()
+		check(getSessionCookieErr)
+
+		jar.SetCookies(baseurl, sessionCookie)
+		client := &http.Client{
+			Timeout: time.Duration(30) * time.Second,
+			Jar:     jar,
+		}
+
+		inputUrl := fmt.Sprintf("https://adventofcode.com/%d/day/%d/input", *inputYear, *inputDay)
+		getInputErr := GetDailyInput(inputUrl, inputFileName, client)
+		check(getInputErr)
 	}
 
-	getInputErr := GetDailyInput(inputYear, inputDay, client)
-	check(getInputErr)
 }
 
 func check(err error) {
@@ -55,19 +69,12 @@ func GetSessionCookie() ([]*http.Cookie, error) {
 	return []*http.Cookie{cookie}, nil
 }
 
-func GetDailyInput(inputYear *int, inputDay *int, client *http.Client) error {
-	inputUrl := fmt.Sprintf("https://adventofcode.com/%d/day/%d/input", *inputYear, *inputDay)
-
+func GetDailyInput(inputUrl string, inputFileName string, client *http.Client) error {
 	resp, err := client.Get(inputUrl)
 	check(err)
 
 	respBytes, err := io.ReadAll(resp.Body)
 	check(err)
-
-	pwd, pwdErr := os.Getwd()
-	check(pwdErr)
-
-	inputFileName := fmt.Sprintf("%s/inputs/day%d.txt", pwd, *inputDay)
 
 	inputFileWriteErr := os.WriteFile(inputFileName, respBytes, 0644)
 	check(inputFileWriteErr)
