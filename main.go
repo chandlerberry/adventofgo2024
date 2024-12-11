@@ -24,6 +24,23 @@ var (
 	inputFolder = flag.String("f", "inputs", "Folder in project directory to get input")
 )
 
+func DayTwo(input *bufio.Scanner) error {
+	partOne := 0
+	partTwo := 0
+	for input.Scan() {
+		levels := strings.Split(input.Text(), " ")
+		for i := 0; i < len(levels); i++ {
+			// TODO: convert levels to ints
+			// TODO: get difference between current and next level
+			// TODO: match on rules
+		}
+	}
+
+	fmt.Printf("Part One: %d\n", partOne)
+	fmt.Printf("Part Two: %d\n", partTwo)
+	return nil
+}
+
 func DayOne(input *bufio.Scanner) error {
 	locationListOne := make([]int, 1000)
 	locationListTwo := make([]int, 1000)
@@ -115,6 +132,9 @@ func main() {
 	case 1:
 		dayOneErr := DayOne(scanner)
 		check(dayOneErr)
+	case 2:
+		dayTwoErr := DayTwo(scanner)
+		check(dayTwoErr)
 	default:
 		fmt.Println("Unimplemented")
 	}
