@@ -19,16 +19,10 @@ import (
 )
 
 var (
-	inputYear = flag.Int("y", 2024, "Input Year")
-	inputDay  = flag.Int("d", 1, "Input Day")
+	inputYear   = flag.Int("y", 2024, "Input Year")
+	inputDay    = flag.Int("d", 1, "Input Day")
+	inputFolder = flag.String("f", "inputs", "Folder in project directory to get input")
 )
-
-func Abs[T constraints.Integer](x T) T {
-	if x < 0 {
-		return -x
-	}
-	return x
-}
 
 func DayOne(input *bufio.Scanner) error {
 	locationListOne := make([]int, 1000)
@@ -81,7 +75,7 @@ func main() {
 	pwd, pwdErr := os.Getwd()
 	check(pwdErr)
 
-	inputFilename := fmt.Sprintf("%s/inputs/day%d.txt", pwd, *inputDay)
+	inputFilename := fmt.Sprintf("%s/%s/day%d.txt", pwd, *inputFolder, *inputDay)
 
 	// check if file exists, if file does not exist, download the file from https://adventofcode.com
 	if _, err := os.Stat(inputFilename); err != nil {
@@ -132,6 +126,13 @@ func check(err error) {
 		fmt.Println("Error: ", err)
 		panic(err)
 	}
+}
+
+func Abs[T constraints.Integer](x T) T {
+	if x < 0 {
+		return -x
+	}
+	return x
 }
 
 func GetSessionCookies() ([]*http.Cookie, error) {
