@@ -34,13 +34,13 @@ func DayOne(input *bufio.Scanner) error {
 	locationListOne := make([]int, 1000)
 	locationListTwo := make([]int, 1000)
 
-	i := 0
+	line := 0
 	for input.Scan() {
 		locationInts := SliceAtoi(strings.Split(input.Text(), "   "))
-		locationListOne[i] = locationInts[0]
-		locationListTwo[i] = locationInts[1]
+		locationListOne[line] = locationInts[0]
+		locationListTwo[line] = locationInts[1]
 
-		i++
+		line++
 	}
 
 	if len(locationListOne) != len(locationListTwo) {
@@ -50,13 +50,26 @@ func DayOne(input *bufio.Scanner) error {
 	slices.Sort(locationListOne)
 	slices.Sort(locationListTwo)
 
-	sum := 0
-	for i = 0; i < 1000; i++ {
+	partOne := 0
+	partTwo := 0
+	for i := 0; i < 1000; i++ {
 		x := locationListOne[i] - locationListTwo[i]
-		sum += Abs(x)
+		partOne += Abs(x)
+
+		frequency := 0
+		for j := 0; j < 1000; j++ {
+			if locationListOne[i] == locationListTwo[j] {
+				frequency++
+			}
+		}
+		score := frequency * locationListOne[i]
+		partTwo += score
+
 	}
 
-	fmt.Printf("%d\n", sum)
+	fmt.Printf("%d\n", partOne)
+	fmt.Printf("%d\n", partTwo)
+
 	return nil
 }
 
@@ -94,20 +107,24 @@ func main() {
 		check(downloadInputErr)
 	}
 
+	// open the input file
 	inputFile, openFileErr := os.Open(inputFilename)
 	check(openFileErr)
 	defer inputFile.Close()
 
+	// create the scanner over the file
 	scanner := bufio.NewScanner(inputFile)
-	day := strconv.Itoa(*inputDay)
 
+	// run the
+	day := *inputDay
 	switch day {
-	case "1":
+	case 1:
 		dayOneErr := DayOne(scanner)
 		check(dayOneErr)
-	case "2":
-		fmt.Println("unimplemented")
+	default:
+		fmt.Println("Unimplemented")
 	}
+
 }
 
 func check(err error) {
