@@ -11,6 +11,7 @@ import (
 	"net/url"
 	"os"
 	"slices"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -27,19 +28,41 @@ var (
 func DayTwo(input *bufio.Scanner) error {
 	partOne := 0
 	partTwo := 0
+
 	for input.Scan() {
 		levels := SliceAtoi(strings.Split(input.Text(), " "))
-		safety := make([]int, len(levels))
+		safety := 1
 
 		for i, v := range levels {
 			if i == len(levels)-1 {
 				break
 			}
 
-			x := Abs(v - levels[i+1])
+			levelChange := Abs(v - levels[i+1])
 
-			// TODO: implement rules
+			if levelChange <= 0 || levelChange > 3 {
+				safety = 0
+				break
+			}
 		}
+
+		if safety == 0 {
+			continue
+		}
+
+		isSortedAsc := sort.SliceIsSorted(levels, func(i int, j int) bool {
+			return levels[i] < levels[j]
+		})
+
+		isSortedDesc := sort.SliceIsSorted(levels, func(i int, j int) bool {
+			return levels[j] < levels[i]
+		})
+
+		if !isSortedAsc && !isSortedDesc {
+			continue
+		}
+
+		partOne++
 	}
 
 	fmt.Printf("Part One: %d\n", partOne)
