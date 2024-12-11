@@ -28,11 +28,17 @@ func DayTwo(input *bufio.Scanner) error {
 	partOne := 0
 	partTwo := 0
 	for input.Scan() {
-		levels := strings.Split(input.Text(), " ")
-		for i := 0; i < len(levels); i++ {
-			// TODO: convert levels to ints
-			// TODO: get difference between current and next level
-			// TODO: match on rules
+		levels := SliceAtoi(strings.Split(input.Text(), " "))
+		safety := make([]int, len(levels))
+
+		for i, v := range levels {
+			if i == len(levels)-1 {
+				break
+			}
+
+			x := Abs(v - levels[i+1])
+
+			// TODO: implement rules
 		}
 	}
 
