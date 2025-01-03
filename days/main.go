@@ -54,38 +54,64 @@ func DayTwo(input *bufio.Scanner) {
 
 	for input.Scan() {
 		levels := helpers.SliceAtoi(strings.Split(input.Text(), " "))
-		safety := 1
 
-		for i, v := range levels {
-			if i == len(levels)-1 {
-				break
-			}
-
-			levelChange := helpers.Abs(v - levels[i+1])
-
-			if levelChange <= 0 || levelChange > 3 {
-				safety = 0
-				break
-			}
+		if isSafe(levels) {
+			partOne++
 		}
 
-		if safety == 0 {
-			continue
+		if isSafeWithDampener(levels) {
+			partTwo++
 		}
-
-		isSortedAsc, isSortedDesc := sort.SliceIsSorted(levels, func(i int, j int) bool {
-			return levels[i] < levels[j]
-		}), sort.SliceIsSorted(levels, func(i int, j int) bool {
-			return levels[j] < levels[i]
-		})
-
-		if !isSortedAsc && !isSortedDesc {
-			continue
-		}
-
-		partOne++
 	}
 
 	fmt.Printf("Part One: %d\n", partOne)
 	fmt.Printf("Part Two: %d\n", partTwo)
+}
+
+func isSafe(levels []int) bool {
+	isSortedAsc := sort.SliceIsSorted(levels, func(i int, j int) bool {
+		return levels[i] < levels[j]
+	})
+
+	isSortedDesc := sort.SliceIsSorted(levels, func(i int, j int) bool {
+		return levels[j] < levels[i]
+	})
+
+	if !isSortedAsc && !isSortedDesc {
+		return false
+	}
+
+	for i, v := range levels {
+		if i == len(levels)-1 {
+			break
+		}
+
+		levelChange := helpers.Abs(v - levels[i+1])
+
+		if levelChange <= 0 || levelChange > 3 {
+			return false
+		}
+	}
+
+	return true
+}
+
+func isSafeWithDampener(levels []int) bool {
+	if isSafe(levels) {
+		return true
+	}
+
+	if !isSafe(levels) {
+		for i, _ := range levels {
+			if i == len(levels)-1 {
+				break
+			}
+			levels = append(levels[:i], levels[i+1:]...)
+			if isSafe(levels) {
+				return true
+			}
+		}
+	}
+
+	return false
 }
