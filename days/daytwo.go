@@ -3,50 +3,11 @@ package days
 import (
 	"bufio"
 	"fmt"
-	"slices"
 	"sort"
 	"strings"
 
 	"github.com/chandlerberry/adventofgo2024/helpers"
 )
-
-func DayOne(input *bufio.Scanner) {
-	locationListOne, locationListTwo := make([]int, 1000), make([]int, 1000)
-
-	line := 0
-	for input.Scan() {
-		locationInts := helpers.SliceAtoi(strings.Split(input.Text(), "   "))
-
-		locationListOne[line] = locationInts[0]
-		locationListTwo[line] = locationInts[1]
-
-		line++
-	}
-
-	slices.Sort(locationListOne)
-	slices.Sort(locationListTwo)
-
-	partOne, partTwo := 0, 0
-
-	for i := 0; i < 1000; i++ {
-		x := locationListOne[i] - locationListTwo[i]
-		partOne += helpers.Abs(x)
-
-		frequency := 0
-		for j := 0; j < 1000; j++ {
-			if locationListOne[i] == locationListTwo[j] {
-				frequency++
-			}
-		}
-
-		score := frequency * locationListOne[i]
-		partTwo += score
-
-	}
-
-	fmt.Printf("Part One: %d\n", partOne)
-	fmt.Printf("Part Two: %d\n", partTwo)
-}
 
 func DayTwo(input *bufio.Scanner) {
 	partOne := 0
@@ -102,12 +63,11 @@ func isSafeWithDampener(levels []int) bool {
 	}
 
 	if !isSafe(levels) {
-		for i, _ := range levels {
-			if i == len(levels)-1 {
-				break
-			}
-			levels = append(levels[:i], levels[i+1:]...)
-			if isSafe(levels) {
+		for i := range levels {
+			dampenedList := append([]int(nil), levels...)
+			dampenedList = append(dampenedList[:i], dampenedList[i+1:]...)
+
+			if isSafe(dampenedList) {
 				return true
 			}
 		}
